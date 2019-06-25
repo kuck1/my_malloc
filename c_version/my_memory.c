@@ -3,15 +3,28 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#define META_DATA_SIZE (32)
+
+
 static void * head;
 static int bytes;
 static int blocks_used;
 static int blocks_free;
 static int space;
 
+struct malloc_stc
+{
+    bool end;
+    bool free;
+    int size;
+    struct malloc_stc * next;
+    struct malloc_stc * prev;
+    struct void * buffer;
+};
+
 // Malloc Init
 void my_malloc_init() {
-    head = malloc(MAX_MALLOC_SIZE);                    // allocate memory to global pointer head
+    head = get_first_block();              
 
     bytes = 0;
     blocks_used = 0;
@@ -104,22 +117,47 @@ int space_used(){
 
 // *** POINTER LOGIC *** //
 
-void divide_block(void * block, size){
+// Meta data size
+// 2 boolean (1)
+// 1 integer (4)
+// 3 pointers (8)  
+
+void * get_first_block(){
+	char * block = malloc(MAX_MALLOC_SIZE);
+
+	struct malloc_stc meta = block;
+
+	meta->end = true;
+	meta->free = true;
+	meta->size = MAX_MALLOC_SIZE - META_DATA_SIZE;
+	meta->next = NULL;
+	meta->prev = NULL;
+	meta->buffer = block + META_DATA_SIZE;
+
+	return meta;
+}
+
+// = 30 bytes = 176 bits
+
+void divide_block(void * block, int size){
 	// divide block
 }
 
-// Meta Data Setters
+// Meta Data Setters 
 
 void set_end(void * block, bool end){
-	// set end
-}
+	char * curr = block;
+	char * new = curr - 22;
 
-void set_size(void * block, int size){
-	// set size
+	new = end;
 }
 
 void set_free(void * block, bool free){
 	// set free
+}
+
+void set_size(void * block, int size){
+	// set size
 }
 
 void set_next(void * block, void * next){
@@ -136,12 +174,12 @@ bool is_end(void * block){
 	// return if end
 }
 
-int get_size(void * block){
-	// return size
-}
-
 bool is_free(void * block){
 	// return if free
+}
+
+int get_size(void * block){
+	// return size
 }
 
 void * next_block(void * block){
