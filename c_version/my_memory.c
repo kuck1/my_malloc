@@ -6,10 +6,11 @@
 #define META_DATA_SIZE (32)
 
 
-static void * head;
-static int bytes;
+static struct malloc_stc * head;
+static int stoarage_bytes;
 static int blocks_used;
-static int blocks_free;
+static int blocks_free_count
+;
 static int space;
 
 struct malloc_stc
@@ -19,95 +20,169 @@ struct malloc_stc
     int size;
     struct malloc_stc * next;
     struct malloc_stc * prev;
-    struct void * buffer;
+    void * buffer;
 };
 
 // Malloc Init
 void my_malloc_init() {
     head = get_first_block();              
 
-    bytes = 0;
+    stoarage_bytes = 0;
     blocks_used = 0;
-    blocks_free = 1;
+    blocks_free_count = 1;
     space = 0;
 }
 
 // Malloc
 void * my_malloc(int size) {
-	void * new_block = find_block(size);
+	struct malloc_stc * new_block = find_block(size);
 
-	set_size(new_block, size);
-	set_end_from_malloc(new_block);
-	set_free(new_block, false);
+	new_block->free = false;
+	new_block->size = size;
 
-	bytes += size;
+	stoarage_bytes += size;
 	blocks_used += 1;
 
-	if (is_end(new_block)) {
-		space += size;
-	}
+	set_end();
 
-	return new_block;
+	void * buffer = new_block->buffer;
+
+	return buffer;
 }
 
 // Malloc Helpers 
-void set_end_from_malloc(void * block){
-	if (is_end(prev_block(block)) && is_free(next_block(block))){
-		set_end(prev_block(block), false);
-		set_end(block, true);
-	}
-}
+// void set_end_from_malloc(struct malloc_stc * block){
+// 	if(!block->next){
+// 		block->end = true;
+// 	}
+// 	else if(!block->prev){
+// 		if ((block->next)->free){
+// 			block->end = true;
+// 		}
+// 	}
+// 	else if ((block->prev)->end && (block->next)->free){
+// 		(block->prev)->end = false;
+// 		block->end = true;
+// 	}
+// }
 
-void * find_block(int size){
-	void * curr = head;
-
-	while (!is_free(curr) || size > get_size(curr)){
-		curr = next_block(head);
+struct malloc_stc * find_block(int size){
+	struct malloc_stc * curr = head;
+	while (!curr->free || size > curr->size){
+		if(!curr->next){
+			return NULL;
+		}
+		curr = curr->next;
 	}
 
 	divide_block(curr, size);
-
+	
+	curr->free = false;
+	
 	return curr;
 }
 
 
 // Free 
-void my_free(void * block){
-	set_free(block, true);
+void my_free(void * buffer){
+	
+	struct malloc_stc * block = get_meta_block(buffer);
 
-	int size = get_size(block);
-	bytes -= size;
+	block->free = true;
+
+	int size = block->size;
+	stoarage_bytes -= size;
 	blocks_used -= 1;
-	blocks_free += 1;
+	blocks_free_count += 1;
 
-	if(is_end(block)){
-		space -= size;
-		set_end_from_free(block);
-	}
+	set_end(block);
 }
 
 // Free Helpers
-void set_end_from_free(void * block){
-	void * curr = block;
+struct malloc_stc * get_meta_block(void * buffer){
+	char * block = buffer;
+	struct malloc_stc * meta = (struct malloc_stc *) (block - META_DATA_SIZE);
+	return meta;
+}
 
-	while (is_free(curr))
-		curr = prev_block(curr);
+// void set_end_from_free(struct malloc_stc * block){
+// 	struct malloc_stc * curr = block;
 
-	set_end(curr, true);
+// 	while (curr->free && curr->prev){
+// 		curr->end = false;
+// 		curr = curr->prev;
+// 	}
+
+// 	curr->end = true;
+// }
+
+void set_end(){
+	struct malloc_stc * curr = head;
+	int alloc_count = 0;
+	int free_count = 0;
+	int total_free_count = 0;
+	int alloc_size = 0;
+	int free_size = 0;
+	
+
+	int space_count = 0;
+	int temp_free_count = 0;
+
+	while(curr->next){
+		if (!curr->free){
+			alloc_count++;
+			free_count += temp_free_count;
+			temp_free_count = 0;
+		}
+		else {
+			total_free_count ++;
+			temp_free_count ++;
+		}
+		curr = curr->next;
+	}
+	curr = head;
+	blocks_used = alloc_count;
+
+	while(alloc_count >= 1){
+		space_count += curr->size;
+		if(!curr->next){
+			break;
+		}
+		if(alloc_count == 1 && !curr->free){
+			alloc_size += curr->size;
+			curr->end = true;
+			alloc_count --;
+		}
+		else if (!curr->free){
+			alloc_size += curr->size;
+			alloc_count --;
+		}
+		else {
+			free_count ++;
+			free_size += curr->size;
+			curr->end = false;
+		}
+		curr = curr->next;
+	}
+	
+	stoarage_bytes = alloc_size;
+	blocks_free_count = total_free_count;
+	space = space_count; //+ (free_count + alloc_count) * META_DATA_SIZE;
+
 }
 
 // Private Variable Getters
 
 int bytes_allocated(){
-	return bytes;
+	return stoarage_bytes;
 }
 
 int blocks_allocated(){
 	return blocks_used;
 }
 
-int blocks_free_count(){
-	return blocks_free;
+int blocks_free(){
+	return blocks_free_count;
 }
 
 int space_used(){
@@ -122,10 +197,10 @@ int space_used(){
 // 1 integer (4)
 // 3 pointers (8)  
 
-void * get_first_block(){
-	char * block = malloc(MAX_MALLOC_SIZE);
+struct malloc_stc * get_first_block(){
+	void * block = malloc(MAX_MALLOC_SIZE);
 
-	struct malloc_stc meta = block;
+	struct malloc_stc * meta = (struct malloc_stc *) block;
 
 	meta->end = true;
 	meta->free = true;
@@ -139,54 +214,27 @@ void * get_first_block(){
 
 // = 30 bytes = 176 bits
 
-void divide_block(void * block, int size){
+void divide_block(struct malloc_stc * block, int size){
 	// divide block
+	char * curr = (char *) block;
+
+	if (block->size < META_DATA_SIZE * 2){
+		return;
+	}
+
+	struct malloc_stc * new_block = (struct malloc_stc *) (curr + META_DATA_SIZE + size);
+
+	new_block->prev = block;
+	new_block->next = block->next;
+	new_block->size = (block->size - size) - META_DATA_SIZE;
+	new_block->free = true;
+	new_block->buffer = (curr + 2 * META_DATA_SIZE + size);
+
+	block->size = size;
+	block->next = new_block;
+
 }
 
-// Meta Data Setters 
 
-void set_end(void * block, bool end){
-	char * curr = block;
-	char * new = curr - 22;
 
-	new = end;
-}
-
-void set_free(void * block, bool free){
-	// set free
-}
-
-void set_size(void * block, int size){
-	// set size
-}
-
-void set_next(void * block, void * next){
-	// set next
-}
-
-void set_prev(void * block, void * prev){
-	// set prev
-}
-
-// Meta Data Getters
-
-bool is_end(void * block){
-	// return if end
-}
-
-bool is_free(void * block){
-	// return if free
-}
-
-int get_size(void * block){
-	// return size
-}
-
-void * next_block(void * block){
-	// return next
-}
-
-void * prev_block(void * block){
-	// return prev
-}
 
