@@ -10,4 +10,12 @@ void simple_test_1();
 void simple_test_2();
 void simple_test_3();
 
+void time_1();
+void time_2();
+void time_3();
+
+void stress_test_1();
+
+void stress_time_1();
+
 #endif

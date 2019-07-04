@@ -29,22 +29,34 @@ void my_malloc_init() {
 
     stoarage_bytes = 0;
     blocks_used = 0;
-    blocks_free_count = 1;
+    blocks_free_count = 0;
     space = 0;
 }
+
+// Malloc Reset
+void my_malloc_reset() {
+    head = reset_first_block();              
+
+    stoarage_bytes = 0;
+    blocks_used = 0;
+    blocks_free_count = 0;
+    space = 0;
+}
+
 
 // Malloc
 void * my_malloc(int size) {
 	struct malloc_stc * new_block = find_block(size);
-
 	new_block->free = false;
 	new_block->size = size;
 
 	stoarage_bytes += size;
 	blocks_used += 1;
 
+	printf("C\n");
+	print_blocks();
 	set_end();
-
+	printf("D\n");
 	void * buffer = new_block->buffer;
 
 	return buffer;
@@ -124,9 +136,14 @@ void set_end(){
 	int alloc_size = 0;
 	int free_size = 0;
 	
+	printf("E\n");
 
 	int space_count = 0;
 	int temp_free_count = 0;
+
+	printf("F\n");
+	// print_blocks();
+	printf("G\n");
 
 	while(curr->next){
 		if (!curr->free){
@@ -142,6 +159,9 @@ void set_end(){
 	}
 	curr = head;
 	blocks_used = alloc_count;
+
+
+	printf("F\n");
 
 	while(alloc_count >= 1){
 		space_count += curr->size;
@@ -165,6 +185,8 @@ void set_end(){
 		curr = curr->next;
 	}
 	
+	printf("G\n");
+
 	stoarage_bytes = alloc_size;
 	blocks_free_count = total_free_count;
 	space = space_count; //+ (free_count + alloc_count) * META_DATA_SIZE;
@@ -212,6 +234,21 @@ struct malloc_stc * get_first_block(){
 	return meta;
 }
 
+struct malloc_stc * reset_first_block(){
+	void * block = head;
+
+	struct malloc_stc * meta = (struct malloc_stc *) block;
+
+	meta->end = true;
+	meta->free = true;
+	meta->size = MAX_MALLOC_SIZE - META_DATA_SIZE;
+	meta->next = NULL;
+	meta->prev = NULL;
+	meta->buffer = block + META_DATA_SIZE;
+
+	return meta;
+}
+
 // = 30 bytes = 176 bits
 
 void divide_block(struct malloc_stc * block, int size){
@@ -232,9 +269,30 @@ void divide_block(struct malloc_stc * block, int size){
 
 	block->size = size;
 	block->next = new_block;
-
 }
 
+void print_blocks(){
+	struct malloc_stc * curr = head;
 
+	while(curr && curr->size > 0){
+		printf("block: %d\n", curr);
+		printf("\t size: %d\n", curr->size);
+		printf("\t free: %d\n", curr->free);
+		printf("\t next: %d\n", curr->next);
+		printf("\t prev: %d\n", curr->prev);
+		printf("\t buff: %d\n\n", curr->buffer);
+		curr = curr->next;
+	}
+
+	if(curr){
+		printf("\nERROR:\n");
+		printf("block: %d\n", curr);
+		printf("\t size: %d\n", curr->size);
+		printf("\t free: %d\n", curr->free);
+		printf("\t next: %d\n", curr->next);
+		printf("\t prev: %d\n", curr->prev);
+		printf("\t buff: %d\n\n", curr->buffer);
+	}
+}
 
 

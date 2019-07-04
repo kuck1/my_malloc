@@ -5,6 +5,7 @@
 #define MAX_MALLOC_SIZE (1024*1024*16)
 
 void my_malloc_init();
+void my_malloc_reset();
 void* my_malloc(int size);
 void my_free(void *buffer);
 
@@ -26,6 +27,7 @@ int space_used();
 
 void divide_block(struct malloc_stc * block, int size);
 struct malloc_stc * get_first_block();
+struct malloc_stc * reset_first_block();
 
 // Meta Data Setters
 // void set_end(void * block, bool end);
@@ -42,7 +44,7 @@ struct malloc_stc * get_first_block();
 // void * prev_block(void * block);
 
 /* optional for debugging */
-void print_my_malloc_free_list();		
+void print_blocks();		
 
 
 #endif
