@@ -285,6 +285,7 @@ void stress_time_2(){
 
 }
 
+
 void stress_time_3(){
 	void * buffer;
 	clock_t start, end, start2,end2;
