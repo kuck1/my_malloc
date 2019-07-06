@@ -98,59 +98,6 @@ struct malloc_stc * get_meta_block(void * buffer){
 	return meta;
 }
 
-void set_end(){
-	struct malloc_stc * curr = head;
-	int alloc_count = 0;
-	int free_count = 0;
-	int total_free_count = 0;
-	int alloc_size = 0;
-	int free_size = 0;
-	
-	int space_count = 0;
-	int temp_free_count = 0;
-
-	while(curr->next){
-		if (!curr->free){
-			alloc_count++;
-			free_count += temp_free_count;
-			temp_free_count = 0;
-		}
-		else {
-			total_free_count ++;
-			temp_free_count ++;
-		}
-		curr = curr->next;
-	}
-	curr = head;
-	blocks_used = alloc_count;
-
-	while(alloc_count >= 1){
-		space_count += curr->size;
-		if(!curr->next){
-			break;
-		}
-		if(alloc_count == 1 && !curr->free){
-			alloc_size += curr->size;
-			curr->end = true;
-			alloc_count --;
-		}
-		else if (!curr->free){
-			alloc_size += curr->size;
-			alloc_count --;
-		}
-		else {
-			free_count ++;
-			free_size += curr->size;
-			curr->end = false;
-		}
-		curr = curr->next;
-	}
-	
-	stoarage_bytes = alloc_size;
-	blocks_free_count = total_free_count;
-	space = space_count; //+ (free_count + alloc_count) * META_DATA_SIZE;
-
-}
 
 // Private Variable Getters
 
