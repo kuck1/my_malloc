@@ -53,30 +53,11 @@ void * my_malloc(int size) {
 	stoarage_bytes += size;
 	blocks_used += 1;
 
-	printf("C\n");
-	print_blocks();
 	set_end();
-	printf("D\n");
 	void * buffer = new_block->buffer;
 
 	return buffer;
 }
-
-// Malloc Helpers 
-// void set_end_from_malloc(struct malloc_stc * block){
-// 	if(!block->next){
-// 		block->end = true;
-// 	}
-// 	else if(!block->prev){
-// 		if ((block->next)->free){
-// 			block->end = true;
-// 		}
-// 	}
-// 	else if ((block->prev)->end && (block->next)->free){
-// 		(block->prev)->end = false;
-// 		block->end = true;
-// 	}
-// }
 
 struct malloc_stc * find_block(int size){
 	struct malloc_stc * curr = head;
@@ -117,17 +98,6 @@ struct malloc_stc * get_meta_block(void * buffer){
 	return meta;
 }
 
-// void set_end_from_free(struct malloc_stc * block){
-// 	struct malloc_stc * curr = block;
-
-// 	while (curr->free && curr->prev){
-// 		curr->end = false;
-// 		curr = curr->prev;
-// 	}
-
-// 	curr->end = true;
-// }
-
 void set_end(){
 	struct malloc_stc * curr = head;
 	int alloc_count = 0;
@@ -136,14 +106,8 @@ void set_end(){
 	int alloc_size = 0;
 	int free_size = 0;
 	
-	printf("E\n");
-
 	int space_count = 0;
 	int temp_free_count = 0;
-
-	printf("F\n");
-	// print_blocks();
-	printf("G\n");
 
 	while(curr->next){
 		if (!curr->free){
@@ -159,9 +123,6 @@ void set_end(){
 	}
 	curr = head;
 	blocks_used = alloc_count;
-
-
-	printf("F\n");
 
 	while(alloc_count >= 1){
 		space_count += curr->size;
@@ -185,8 +146,6 @@ void set_end(){
 		curr = curr->next;
 	}
 	
-	printf("G\n");
-
 	stoarage_bytes = alloc_size;
 	blocks_free_count = total_free_count;
 	space = space_count; //+ (free_count + alloc_count) * META_DATA_SIZE;
@@ -255,7 +214,7 @@ void divide_block(struct malloc_stc * block, int size){
 	// divide block
 	char * curr = (char *) block;
 
-	if (block->size < META_DATA_SIZE * 2){
+	if (block->size - size < META_DATA_SIZE * 2){
 		return;
 	}
 

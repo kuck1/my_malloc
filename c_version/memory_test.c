@@ -37,11 +37,13 @@ int main(){
 	time_2();
 	time_3();
 
-	printf("Z\n");
 	stress_test_1();
-	printf("A\n");
+
 	stress_time_1();
-	printf("B\n");
+	stress_time_2();
+	stress_time_3();
+	stress_time_4();
+
 }
 
 void assert_check(int bytes, int blocks, int blocks_free_count, int space, int test, int check){
@@ -68,8 +70,6 @@ void assert_check(int bytes, int blocks, int blocks_free_count, int space, int t
 void simple_test_1(){
 	void * buffer = my_malloc(10);
 	assert_check(10,1,0,10,1,1);
-
-	print_blocks();
 
 	my_free(buffer);
 	assert_check(0,0,1,0,1,2);
@@ -231,11 +231,9 @@ void stress_test_1(){
 	assert_check(0,0,5,0, 4, 2);
 
 	printf("Stress Test 1 complete\n\n");
-	printf("Y\n");
 }
 
 void stress_time_1(){
-	printf("X\n");
 	printf("Stress Time 1: ");
 	my_malloc_reset();
 
@@ -248,38 +246,81 @@ void stress_time_1(){
 	void * buffer4 = my_malloc(500000);
 	void * buffer5 = my_malloc(5000000);
 
-	print_blocks();
-
-	printf("W\n");
 	my_free(buffer1);
 	my_free(buffer2);
 	my_free(buffer3);
 	my_free(buffer4);
 	my_free(buffer5);
 
-	print_blocks();
-
-	printf("U\n");
-
 	buffer5 = my_malloc(5000000);
-	printf("U1\n");
-	buffer4 = my_malloc(1000);
-	printf("U2\n");
-	buffer3 = my_malloc(1000);
-	printf("U3\n");
-	buffer2 = my_malloc(1000);
-	printf("U4\n");
-	buffer1 = my_malloc(10000000);
-
-	void * buffer6;
-	printf("V\n");
-
-	// for(int i = 1; i > 0; i--){
-	// 	buffer6 = my_malloc(10);
-	// }
+	buffer4 = my_malloc(500000);
+	buffer3 = my_malloc(100000);
+	buffer2 = my_malloc(50000);
+	buffer1 = my_malloc(10000);
 
 	end = clock();
 
-	printf("Clock: %lu\n\n", end-start);
+	print_blocks();
+
+	printf("Stress 1: %lu\n\n", end-start);
 }
 
+void stress_time_2(){
+	void * buffer;
+	clock_t start, end, start2,end2;
+
+	start = clock();
+	for(int i = 10; i > 0; i--){
+		buffer = my_malloc(1000);
+	}
+	end = clock();
+
+	start2 = clock();
+	for(int i = 10; i > 0; i--){
+		buffer = malloc(1000);
+	}
+	end2 = clock();
+
+	printf("Stress 2: %lu:%lu\n\n", end-start, end2-start2);
+
+}
+
+void stress_time_3(){
+	void * buffer;
+	clock_t start, end, start2,end2;
+
+	start = clock();
+	for(int i = 1000; i > 0; i--){
+		buffer = my_malloc(1000);
+	}
+	end = clock();
+
+	start2 = clock();
+	for(int i = 1000; i > 0; i--){
+		buffer = malloc(1000);
+	}
+	end2 = clock();
+
+	printf("Stress 2: %lu:%lu\n\n", end-start, end2-start2);
+
+}
+
+void stress_time_4(){
+	my_malloc_reset();
+
+	void * buffer;
+	clock_t start, end, start2,end2;
+
+	start = clock();
+	for(int i = 10000; i > 0; i--){
+		buffer = my_malloc(1000);
+	}
+	end = clock();
+
+	start2 = clock();
+	for(int i = 10000; i > 0; i--){
+		buffer = malloc(1000);
+	}
+	end2 = clock();
+	printf("Stress 2: %lu:%lu\n\n", end-start, end2-start2);
+}

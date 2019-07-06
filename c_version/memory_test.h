@@ -17,5 +17,8 @@ void time_3();
 void stress_test_1();
 
 void stress_time_1();
+void stress_time_2();
+void stress_time_3();
+void stress_time_4();
 
 #endif
