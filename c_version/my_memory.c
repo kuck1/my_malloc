@@ -7,6 +7,7 @@
 
 
 static struct malloc_stc * head;
+static struct malloc_stc * tail;
 static int stoarage_bytes;
 static int blocks_used;
 static int blocks_free_count
@@ -26,6 +27,7 @@ struct malloc_stc
 // Malloc Init
 void my_malloc_init() {
     head = get_first_block();              
+    tail = head;
 
     stoarage_bytes = 0;
     blocks_used = 0;
@@ -36,6 +38,7 @@ void my_malloc_init() {
 // Malloc Reset
 void my_malloc_reset() {
     head = reset_first_block();              
+    tail = head;
 
     stoarage_bytes = 0;
     blocks_used = 0;
@@ -50,11 +53,10 @@ void * my_malloc(int size) {
 	new_block->free = false;
 	new_block->size = size;
 
-	stoarage_bytes += size;
-	blocks_used += 1;
-
 	//set_end();
 	void * buffer = new_block->buffer;
+
+	set_tail_on_malloc(new_block);
 
 	return buffer;
 }
@@ -75,6 +77,59 @@ struct malloc_stc * find_block(int size){
 	return curr;
 }
 
+struct malloc_stc * find_block_from_tail(int size){
+	struct malloc_stc * curr = tail;
+
+	while (!curr->free || size > curr->size){
+		if(!curr->prev){
+			printf("ALLOCATION FAILED: RETURNING NULL");
+			return NULL;
+		}
+		curr = curr->prev;
+	}
+
+	divide_block(curr, size);
+	
+	curr->free = false;
+	
+	return curr;
+}
+
+void set_tail_on_malloc(struct malloc_stc * curr_block){
+	struct malloc_stc * prev_block = get_previous_block(curr_block);
+	if(tail->prev == prev_block){
+		tail = curr_block->next;
+	}
+}
+
+void set_tail_on_free(struct malloc_stc * curr_block){
+	if(tail->prev == curr_block){
+
+		struct malloc_stc * prev_block = get_previous_block(curr_block);
+		if(prev_block == NULL){
+			tail = head;
+		}
+		else{
+			tail = prev_block->next;
+		}
+	}
+}
+
+struct malloc_stc * get_previous_block(struct malloc_stc * curr){
+	if(!curr->prev){
+		return NULL
+		;
+	}
+
+	curr = curr->prev;
+	while(!curr->free && curr->prev){
+		curr = curr->prev;
+	}
+	if(curr->free){
+		return NULL;
+	}
+	return curr;
+}
 
 // Free 
 void my_free(void * buffer){
@@ -83,12 +138,9 @@ void my_free(void * buffer){
 
 	block->free = true;
 
-	int size = block->size;
-	stoarage_bytes -= size;
-	blocks_used -= 1;
-	blocks_free_count += 1;
-
-	//set_end(block);
+	printf("A1\n");
+	set_tail_on_free(block);
+	printf("B1\n");
 }
 
 // Free Helpers
@@ -180,6 +232,8 @@ void divide_block(struct malloc_stc * block, int size){
 void print_blocks(){
 	struct malloc_stc * curr = head;
 
+	printf("Head: %d, Tail: %d\n", head, tail);
+
 	while(curr && curr->size > 0){
 		printf("block: %d\n", curr);
 		printf("\t size: %d\n", curr->size);
@@ -201,4 +255,27 @@ void print_blocks(){
 	}
 }
 
+void update_stats(){
+	struct malloc_stc * curr = head;
+
+	if (curr == tail){
+		stoarage_bytes = 0;
+	    blocks_used = 0;
+	    blocks_free_count = 0;
+	    space = 0;
+		return;
+	}
+
+	while(curr != tail){
+		if(!curr->free){
+			stoarage_bytes += curr->size;
+			blocks_used ++;
+		}
+		else{
+			blocks_free_count ++;
+		}
+		space += curr->size;
+		curr = curr->next;
+	}
+}
 

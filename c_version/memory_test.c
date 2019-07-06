@@ -11,26 +11,18 @@ int main(){
 
 	printf("Running tests \n\n");
 
-	// void * pointer;
-	// bool boolean;
-	// int integer;
+	// void * warmup1 = malloc(10);
+	// void * warmup2 = malloc(50);
+	// void * warmup3 = malloc(100);
 
-	// printf("size of pointer: %lu \n", sizeof(pointer));
-	// printf("size of boolean: %lu \n", sizeof(boolean));
-	// printf("size of integer: %lu \n", sizeof(integer));
-
-	// printf("Printed sizes\n");
-
-	void * warmup1 = malloc(10);
-	void * warmup2 = malloc(50);
-	void * warmup3 = malloc(100);
-
-	free(warmup1);
-	free(warmup2);
-	free(warmup3);
-
+	// free(warmup1);
+	// free(warmup2);
+	// free(warmup3);
+	printf("A\n");
 	simple_test_1();
+	printf("B\n");
 	simple_test_2();
+	printf("C\n");
 	simple_test_3();
 
 	time_1();
@@ -48,6 +40,9 @@ int main(){
 
 void assert_check(int bytes, int blocks, int blocks_free_count, int space, int test, int check){
 	int score = 0;
+
+	update_stats();
+
 	score += 1 - (bytes_allocated() == bytes);
 	
 	score += (1 - (blocks_allocated() == blocks)) * 2;
@@ -57,6 +52,7 @@ void assert_check(int bytes, int blocks, int blocks_free_count, int space, int t
 	score += (1 - (space_used() == space)) * 8;
 
 	if (score > 0){
+		print_blocks();
 		printf("Test %d, check %d, failed: %d\n", test, check, score);
 		printf("bytes actual: %d bytes expected: %d\n", bytes_allocated(), bytes);
 		printf("blocks allocated actual: %d blocks allocated expected: %d\n", blocks_allocated(), blocks);
@@ -71,8 +67,10 @@ void simple_test_1(){
 	void * buffer = my_malloc(10);
 	assert_check(10,1,0,10,1,1);
 
+	printf("X\n");
 	my_free(buffer);
-	assert_check(0,0,1,0,1,2);
+	printf("Y\n");
+	assert_check(0,0,0,0,1,2);
 	
 	printf("Test 1 complete\n\n");
 }
@@ -111,12 +109,12 @@ void simple_test_2(){
 	assert_check(20,1,1,30,2,1);
 
 	my_free(buffer2);
-	assert_check(0,0,2,0,2,2);
+	assert_check(0,0,0,0,2,2);
 
 	void * buffer3 = my_malloc(30);
 	assert_check(30,1,2,60,2,3);
 	my_free(buffer3);
-	assert_check(0,0,3,0,2,4);
+	assert_check(0,0,0,0,2,4);
 
 	printf("Test 2 complete\n\n");
 }
@@ -167,7 +165,7 @@ void simple_test_3(){
 	my_free(buffer2);
 	assert_check(30,1,2,60,3,3);
 	my_free(buffer3);
-	assert_check(0,0,3,0,3,4);
+	assert_check(0,0,0,0,3,4);
 
 	printf("Test 3 complete\n\n");
 }
@@ -228,7 +226,7 @@ void stress_test_1(){
 	my_free(buffer4);
 	my_free(buffer5);
 
-	assert_check(0,0,5,0, 4, 2);
+	assert_check(0,0,0,0, 4, 2);
 
 	printf("Stress Test 1 complete\n\n");
 }
@@ -259,8 +257,6 @@ void stress_time_1(){
 	buffer1 = my_malloc(10000);
 
 	end = clock();
-
-	print_blocks();
 
 	printf("Stress 1: %lu\n\n", end-start);
 }
