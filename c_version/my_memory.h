@@ -11,10 +11,7 @@ void my_free(void *buffer);
 
 // Helper Functions
 struct malloc_stc * find_block(int size);
-void set_end_from_free(struct malloc_stc * block);
 struct malloc_stc * get_meta_block(void * buffer);
-void set_end_from_malloc(struct malloc_stc * block);
-void set_end();
 
 // Private Variable Getters
 int bytes_allocated();
