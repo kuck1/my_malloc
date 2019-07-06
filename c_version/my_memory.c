@@ -53,7 +53,7 @@ void * my_malloc(int size) {
 	stoarage_bytes += size;
 	blocks_used += 1;
 
-	set_end();
+	//set_end();
 	void * buffer = new_block->buffer;
 
 	return buffer;
@@ -88,7 +88,7 @@ void my_free(void * buffer){
 	blocks_used -= 1;
 	blocks_free_count += 1;
 
-	set_end(block);
+	//set_end(block);
 }
 
 // Free Helpers
