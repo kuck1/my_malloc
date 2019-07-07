@@ -11,6 +11,7 @@ void my_free(void *buffer);
 
 // Helper Functions
 struct malloc_stc * find_block(int size);
+struct malloc_stc * find_block_from_tail(int size);
 struct malloc_stc * get_meta_block(void * buffer);
 void set_tail_on_malloc(struct malloc_stc * curr_block);
 void set_tail_on_free(struct malloc_stc * curr_block);

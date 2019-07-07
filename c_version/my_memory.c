@@ -49,7 +49,7 @@ void my_malloc_reset() {
 
 // Malloc
 void * my_malloc(int size) {
-	struct malloc_stc * new_block = find_block(size);
+	struct malloc_stc * new_block = find_block_from_tail(size);
 	new_block->free = false;
 	new_block->size = size;
 
@@ -81,11 +81,11 @@ struct malloc_stc * find_block_from_tail(int size){
 	struct malloc_stc * curr = tail;
 
 	while (!curr->free || size > curr->size){
-		if(!curr->prev){
-			printf("ALLOCATION FAILED: RETURNING NULL");
+		if(!curr->next){
+			printf("ALLOCATION FAILED: RETURNING NULL\n");
 			return NULL;
 		}
-		curr = curr->prev;
+		curr = curr->next;
 	}
 
 	divide_block(curr, size);
