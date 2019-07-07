@@ -18,11 +18,8 @@ int main(){
 	// free(warmup1);
 	// free(warmup2);
 	// free(warmup3);
-	printf("A\n");
 	simple_test_1();
-	printf("B\n");
 	simple_test_2();
-	printf("C\n");
 	simple_test_3();
 
 	time_1();
@@ -67,9 +64,7 @@ void simple_test_1(){
 	void * buffer = my_malloc(10);
 	assert_check(10,1,0,10,1,1);
 
-	printf("X\n");
 	my_free(buffer);
-	printf("Y\n");
 	assert_check(0,0,0,0,1,2);
 	
 	printf("Test 1 complete\n\n");

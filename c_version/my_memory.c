@@ -97,6 +97,7 @@ struct malloc_stc * find_block_from_tail(int size){
 
 void set_tail_on_malloc(struct malloc_stc * curr_block){
 	struct malloc_stc * prev_block = get_previous_block(curr_block);
+	// printf("prev_block: %d\n", prev_block);
 	if(tail->prev == prev_block){
 		tail = curr_block->next;
 	}
@@ -117,12 +118,11 @@ void set_tail_on_free(struct malloc_stc * curr_block){
 
 struct malloc_stc * get_previous_block(struct malloc_stc * curr){
 	if(!curr->prev){
-		return NULL
-		;
+		return NULL;
 	}
 
 	curr = curr->prev;
-	while(!curr->free && curr->prev){
+	while(curr->free && curr->prev){
 		curr = curr->prev;
 	}
 	if(curr->free){
@@ -137,10 +137,7 @@ void my_free(void * buffer){
 	struct malloc_stc * block = get_meta_block(buffer);
 
 	block->free = true;
-
-	printf("A1\n");
 	set_tail_on_free(block);
-	printf("B1\n");
 }
 
 // Free Helpers
@@ -258,13 +255,10 @@ void print_blocks(){
 void update_stats(){
 	struct malloc_stc * curr = head;
 
-	if (curr == tail){
-		stoarage_bytes = 0;
-	    blocks_used = 0;
-	    blocks_free_count = 0;
-	    space = 0;
-		return;
-	}
+	stoarage_bytes = 0;
+    blocks_used = 0;
+    blocks_free_count = 0;
+    space = 0;
 
 	while(curr != tail){
 		if(!curr->free){
