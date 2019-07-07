@@ -257,6 +257,8 @@ void stress_time_1(){
 }
 
 void stress_time_2(){
+	my_malloc_reset();
+
 	void * buffer;
 	clock_t start, end, start2,end2;
 
@@ -278,6 +280,8 @@ void stress_time_2(){
 
 
 void stress_time_3(){
+	my_malloc_reset();
+
 	void * buffer;
 	clock_t start, end, start2,end2;
 

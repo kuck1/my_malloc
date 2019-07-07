@@ -16,7 +16,6 @@ static int space;
 
 struct malloc_stc
 {
-    bool end;
     bool free;
     int size;
     struct malloc_stc * next;
@@ -179,7 +178,6 @@ struct malloc_stc * get_first_block(){
 
 	struct malloc_stc * meta = (struct malloc_stc *) block;
 
-	meta->end = true;
 	meta->free = true;
 	meta->size = MAX_MALLOC_SIZE - META_DATA_SIZE;
 	meta->next = NULL;
@@ -194,7 +192,6 @@ struct malloc_stc * reset_first_block(){
 
 	struct malloc_stc * meta = (struct malloc_stc *) block;
 
-	meta->end = true;
 	meta->free = true;
 	meta->size = MAX_MALLOC_SIZE - META_DATA_SIZE;
 	meta->next = NULL;
