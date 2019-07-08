@@ -1,6 +1,7 @@
 #if !defined(MY_MALLOC_H)
 #define MY_MALLOC_H
 #include <stdbool.h>
+#include <time.h>
 
 #define MAX_MALLOC_SIZE (1024*1024*16)
 
@@ -32,5 +33,15 @@ struct malloc_stc * reset_first_block();
 /* optional for debugging */
 void print_blocks();		
 void update_stats();
+struct time_stc * get_time_info();
+
+struct time_stc
+{
+	clock_t start;
+	clock_t end;
+
+	int find_block_time;
+	int set_tail_time;
+};
 
 #endif

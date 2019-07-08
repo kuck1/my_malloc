@@ -2,6 +2,7 @@
 #include "my_memory.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
 #define META_DATA_SIZE (32)
 
@@ -10,9 +11,10 @@ static struct malloc_stc * head;
 static struct malloc_stc * tail;
 static int stoarage_bytes;
 static int blocks_used;
-static int blocks_free_count
-;
+static int blocks_free_count;
 static int space;
+
+struct time_stc * timer;
 
 struct malloc_stc
 {
@@ -28,6 +30,10 @@ void my_malloc_init() {
     head = get_first_block();              
     tail = head;
 
+    timer = malloc(sizeof(struct time_stc));
+    timer->find_block_time = 0;
+    timer->set_tail_time = 0;
+
     stoarage_bytes = 0;
     blocks_used = 0;
     blocks_free_count = 0;
@@ -39,6 +45,9 @@ void my_malloc_reset() {
     head = reset_first_block();              
     tail = head;
 
+    timer->find_block_time = 0;
+    timer->set_tail_time = 0;
+
     stoarage_bytes = 0;
     blocks_used = 0;
     blocks_free_count = 0;
@@ -48,14 +57,22 @@ void my_malloc_reset() {
 
 // Malloc
 void * my_malloc(int size) {
+	timer->start = clock();
 	struct malloc_stc * new_block = find_block_from_tail(size);
 	new_block->free = false;
 	new_block->size = size;
+	timer->end = clock();
 
-	//set_end();
+	timer->find_block_time += timer->end - timer->start;
+
+	timer->start = clock();
 	void * buffer = new_block->buffer;
 
 	set_tail_on_malloc(new_block);
+	timer->end = clock();
+
+	timer->set_tail_time += timer->end - timer->start;
+
 
 	return buffer;
 }
@@ -268,5 +285,9 @@ void update_stats(){
 		space += curr->size;
 		curr = curr->next;
 	}
+}
+
+struct time_stc * get_time_info(){
+	return timer;
 }
 

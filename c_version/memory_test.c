@@ -276,6 +276,8 @@ void stress_time_2(){
 
 	printf("Stress 2: %lu:%lu\n\n", end-start, end2-start2);
 
+	struct time_stc * timer = get_time_info();
+	printf("find block: %d, set tail: %d\n\n", timer->find_block_time, timer->set_tail_time);
 }
 
 
@@ -297,8 +299,10 @@ void stress_time_3(){
 	}
 	end2 = clock();
 
-	printf("Stress 2: %lu:%lu\n\n", end-start, end2-start2);
+	printf("Stress 3: %lu:%lu\n\n", end-start, end2-start2);
 
+	struct time_stc * timer = get_time_info();
+	printf("find block: %d, set tail: %d\n\n", timer->find_block_time, timer->set_tail_time);
 }
 
 void stress_time_4(){
@@ -318,5 +322,8 @@ void stress_time_4(){
 		buffer = malloc(1000);
 	}
 	end2 = clock();
-	printf("Stress 2: %lu:%lu\n\n", end-start, end2-start2);
+	printf("Stress 4: %lu:%lu\n\n", end-start, end2-start2);
+
+	struct time_stc * timer = get_time_info();
+	printf("find block: %d, set tail: %d\n\n", timer->find_block_time, timer->set_tail_time);
 }
